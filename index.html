@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cielito Drone — Tu experiencia importa</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #0a0f1e;
+    --sky-mid: #111827;
+    --accent: #38bdf8;
+    --accent-glow: #0ea5e9;
+    --accent-soft: rgba(56,189,248,0.12);
+    --accent-border: rgba(56,189,248,0.3);
+    --gold: #f59e0b;
+    --gold-soft: rgba(245,158,11,0.15);
+    --text: #f0f4ff;
+    --text-muted: #8b9bb4;
+    --card: rgba(255,255,255,0.04);
+    --card-hover: rgba(56,189,248,0.08);
+    --border: rgba(255,255,255,0.08);
+    --radius: 16px;
+    --success: #10b981;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: auto; overflow-x: hidden; }
+
+  body {
+    background: var(--sky);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  /* ── Stars background ── */
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    min-height: 100%;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 85%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 42% 90%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb */
+  body::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(56,189,248,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding: 10px 20px;
+    border: 1px solid var(--accent-border);
+    border-radius: 100px;
+    background: var(--accent-soft);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+  }
+
+  .logo-icon { font-size: 18px; }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 460px;
+    margin: 0 auto 20px;
+  }
+
+  .time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+  }
+
+  /* ── Progress ── */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10,15,30,0.9);
+    backdrop-filter: blur(12px);
+    padding: 12px 0;
+    margin-bottom: 32px;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-glow), var(--accent));
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 8px var(--accent);
+    width: 0%;
+  }
+
+  /* ── Sections ── */
+  .section {
+    display: none;
+    animation: fadeUp 0.4s ease both;
+  }
+  .section.active { display: block; }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(20px, 4vw, 26px);
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.25;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .card:hover { border-color: var(--accent-border); background: var(--card-hover); }
+
+  .card-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── NPS / Star Rating ── */
+  .nps-scale {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .nps-btn {
+    flex: 1;
+    min-width: 36px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .nps-btn:hover { border-color: var(--accent-border); color: var(--accent); transform: translateY(-2px); }
+
+  .nps-btn.selected {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 12px rgba(56,189,248,0.25);
+  }
+
+  .nps-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 0 2px;
+  }
+
+  /* Stars */
+  .stars {
+    display: flex;
+    gap: 8px;
+  }
+
+  .star {
+    font-size: 32px;
+    cursor: pointer;
+    transition: transform 0.15s, filter 0.15s;
+    filter: grayscale(1) opacity(0.35);
+    line-height: 1;
+    user-select: none;
+  }
+
+  .star:hover, .star.lit { filter: none; transform: scale(1.15); }
+  .star.lit { filter: none; }
+
+  /* ── Options Grid ── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s;
+  }
+
+  .option-btn:hover { border-color: var(--accent-border); background: var(--card-hover); }
+
+  .option-btn.selected {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .option-btn.selected .opt-icon { filter: none; }
+
+  .opt-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* Multi-select hint */
+  .multi-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── Textarea / Input ── */
+  textarea, input[type=text] {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    padding: 14px 16px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  textarea:focus, input[type=text]:focus { border-color: var(--accent-border); }
+  textarea::placeholder, input::placeholder { color: var(--text-muted); }
+
+  /* ── CSAT Faces ── */
+  .faces {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .face-btn {
+    flex: 1;
+    min-width: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 8px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .face-btn:hover { border-color: var(--accent-border); transform: translateY(-3px); }
+  .face-btn.selected { background: var(--accent-soft); border-color: var(--accent); }
+  .face-btn span:first-child { font-size: 28px; }
+  .face-btn span:last-child { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .face-btn.selected span:last-child { color: var(--accent); }
+
+  /* ── Nav buttons ── */
+  .nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .btn-back {
+    padding: 14px 22px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-back:hover { border-color: var(--border); color: var(--text); }
+
+  .btn-next {
+    flex: 1;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-glow), var(--accent));
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px rgba(56,189,248,0.3);
+  }
+
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(56,189,248,0.45); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── Thank you screen ── */
+  .thankyou {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .thankyou.active { display: block; }
+
+  .ty-icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+    display: block;
+    animation: bounce 0.6s ease 0.3s both;
+  }
+
+  .ty-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .ty-msg {
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 400px;
+    margin: 0 auto 32px;
+  }
+
+  .ty-drone {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 28px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ── Required indicator ── */
+  .req { color: var(--accent); margin-left: 2px; }
+
+  /* ── Input group ── */
+  .input-group { margin-bottom: 14px; }
+  .input-label { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; display: block; }
+
+  /* ── Scale descriptor colors ── */
+  .nps-btn[data-v="0"], .nps-btn[data-v="1"], .nps-btn[data-v="2"], .nps-btn[data-v="3"],
+  .nps-btn[data-v="4"], .nps-btn[data-v="5"], .nps-btn[data-v="6"] {
+    --hover-color: #ef4444;
+  }
+  .nps-btn[data-v="7"], .nps-btn[data-v="8"] { --hover-color: var(--gold); }
+  .nps-btn[data-v="9"], .nps-btn[data-v="10"] { --hover-color: var(--success); }
+
+  /* ── Animations ── */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); }  to { opacity: 1; transform: translateY(0); } }
+  @keyframes float    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes bounce   { 0%,100% { transform: scale(1); } 40% { transform: scale(1.2); } 70% { transform: scale(0.9); } }
+
+  /* ── Mobile ── */
+  @media (max-width: 480px) {
+    .options-grid { grid-template-columns: 1fr 1fr; }
+    .nps-btn { min-width: 28px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <span class="logo-icon">🚁</span>
+      CIELITO DRONE
+    </div>
+    <h1>¿Cómo fue tu experiencia?</h1>
+    <p class="subtitle">Tu opinión nos ayuda a seguir mejorando. Son solo 2 minutos — prometido.</p>
+    <span class="time-pill">⏱ ~2 min &nbsp;·&nbsp; 5 secciones</span>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar">
+    <div class="progress-meta">
+      <span id="step-label">Paso 1 de 5</span>
+      <span id="step-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECCIÓN 1 — NPS -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section active" id="s1">
+    <div class="section-label">🎯 Recomendación</div>
+    <div class="section-title">Del 0 al 10, ¿qué tan probable es que recomiendes Cielito Drone?</div>
+    <div class="section-desc">0 = Nunca la recomendaría &nbsp;·&nbsp; 10 = La recomendaría sin dudarlo</div>
+
+    <div class="card">
+      <div class="nps-scale" id="nps-scale">
+        <button class="nps-btn" data-v="0" onclick="selectNPS(0)">0</button>
+        <button class="nps-btn" data-v="1" onclick="selectNPS(1)">1</button>
+        <button class="nps-btn" data-v="2" onclick="selectNPS(2)">2</button>
+        <button class="nps-btn" data-v="3" onclick="selectNPS(3)">3</button>
+        <button class="nps-btn" data-v="4" onclick="selectNPS(4)">4</button>
+        <button class="nps-btn" data-v="5" onclick="selectNPS(5)">5</button>
+        <button class="nps-btn" data-v="6" onclick="selectNPS(6)">6</button>
+        <button class="nps-btn" data-v="7" onclick="selectNPS(7)">7</button>
+        <button class="nps-btn" data-v="8" onclick="selectNPS(8)">8</button>
+        <button class="nps-btn" data-v="9" onclick="selectNPS(9)">9</button>
+        <button class="nps-btn" data-v="10" onclick="selectNPS(10)">10</button>
+      </div>
+      <div class="nps-labels">
+        <span>No recomendaría</span>
+        <span>Totalmente a favor</span>
+      </div>
+    </div>
+
+    <div class="card" id="nps-reason-card" style="display:none">
+      <div class="card-label">¿Qué fue lo más determinante para darte esa calificación?</div>
+      <textarea id="nps-reason" rows="3" placeholder="Cuéntanos brevemente..."></textarea>
+    </div>
+
+    <div class="nav">
+      <button class="btn-next" id="btn-s1" onclick="goTo(2)" disabled>Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECCIÓN 2 — Experiencia de compra -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="section-label">🛒 Experiencia de compra</div>
+    <div class="section-title">¿Cómo calificarías cada aspecto de tu compra?</div>
+    <div class="section-desc">Toca las estrellas para cada área.</div>
+
+    <div class="card">
+      <div class="card-label">Facilidad para encontrar el producto que buscabas</div>
+      <div class="stars" data-group="s2_find">
+        <span class="star" data-val="1" onclick="setStar('s2_find',1)">⭐</span>
+        <span class="star" data-val="2" onclick="setStar('s2_find',2)">⭐</span>
+        <span class="star" data-val="3" onclick="setStar('s2_find',3)">⭐</span>
+        <span class="star" data-val="4" onclick="setStar('s2_find',4)">⭐</span>
+        <span class="star" data-val="5" onclick="setStar('s2_find',5)">⭐</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Claridad de la información del producto (especificaciones, fotos, videos)</div>
+      <div class="stars" data-group="s2_info">
+        <span class="star" data-val="1" onclick="setStar('s2_info',1)">⭐</span>
+        <span class="star" data-val="2" onclick="setStar('s2_info',2)">⭐</span>
+        <span class="star" data-val="3" onclick="setStar('s2_info',3)">⭐</span>
+        <span class="star" data-val="4" onclick="setStar('s2_info',4)">⭐</span>
+        <span class="star" data-val="5" onclick="setStar('s2_info',5)">⭐</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Proceso de pago — ¿qué tan sencillo y seguro lo sentiste?</div>
+      <div class="stars" data-group="s2_pay">
+        <span class="star" data-val="1" onclick="setStar('s2_pay',1)">⭐</span>
+        <span class="star" data-val="2" onclick="setStar('s2_pay',2)">⭐</span>
+        <span class="star" data-val="3" onclick="setStar('s2_pay',3)">⭐</span>
+        <span class="star" data-val="4" onclick="setStar('s2_pay',4)">⭐</span>
+        <span class="star" data-val="5" onclick="setStar('s2_pay',5)">⭐</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Velocidad y puntualidad de la entrega</div>
+      <div class="stars" data-group="s2_ship">
+        <span class="star" data-val="1" onclick="setStar('s2_ship',1)">⭐</span>
+        <span class="star" data-val="2" onclick="setStar('s2_ship',2)">⭐</span>
+        <span class="star" data-val="3" onclick="setStar('s2_ship',3)">⭐</span>
+        <span class="star" data-val="4" onclick="setStar('s2_ship',4)">⭐</span>
+        <span class="star" data-val="5" onclick="setStar('s2_ship',5)">⭐</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Empaque y presentación del producto al recibirlo</div>
+      <div class="stars" data-group="s2_pack">
+        <span class="star" data-val="1" onclick="setStar('s2_pack',1)">⭐</span>
+        <span class="star" data-val="2" onclick="setStar('s2_pack',2)">⭐</span>
+        <span class="star" data-val="3" onclick="setStar('s2_pack',3)">⭐</span>
+        <span class="star" data-val="4" onclick="setStar('s2_pack',4)">⭐</span>
+        <span class="star" data-val="5" onclick="setStar('s2_pack',5)">⭐</span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(1)">← Atrás</button>
+      <button class="btn-next" id="btn-s2" onclick="goTo(3)" disabled>Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECCIÓN 3 — Producto -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="section-label">🚁 El drone</div>
+    <div class="section-title">¿Cómo calificarías el drone en sí?</div>
+    <div class="section-desc">Solo toca las emojis — rápido y directo.</div>
+
+    <div class="card">
+      <div class="card-label">Satisfacción general con el drone que recibiste</div>
+      <div class="faces" id="faces-overall">
+        <button class="face-btn" data-v="1" onclick="setFace('overall',1)"><span>😤</span><span>Decepcionado</span></button>
+        <button class="face-btn" data-v="2" onclick="setFace('overall',2)"><span>😕</span><span>Esperaba más</span></button>
+        <button class="face-btn" data-v="3" onclick="setFace('overall',3)"><span>😐</span><span>Está bien</span></button>
+        <button class="face-btn" data-v="4" onclick="setFace('overall',4)"><span>😊</span><span>Muy bueno</span></button>
+        <button class="face-btn" data-v="5" onclick="setFace('overall',5)"><span>🤩</span><span>¡Increíble!</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">¿El drone cumplió con lo que se prometía en la descripción?</div>
+      <div class="options-grid" id="match-opts" style="grid-template-columns:1fr 1fr">
+        <button class="option-btn" data-g="match" data-v="si" onclick="selectSingle('match',this)"><span class="opt-icon">✅</span> Sí, totalmente</button>
+        <button class="option-btn" data-g="match" data-v="casi" onclick="selectSingle('match',this)"><span class="opt-icon">🔄</span> Casi todo</button>
+        <button class="option-btn" data-g="match" data-v="parcial" onclick="selectSingle('match',this)"><span class="opt-icon">⚠️</span> Solo en parte</button>
+        <button class="option-btn" data-g="match" data-v="no" onclick="selectSingle('match',this)"><span class="opt-icon">❌</span> No del todo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">¿Con qué propósito principal estás usando el drone? <span class="req">*</span></div>
+      <div class="options-grid" id="uso-opts">
+        <button class="option-btn" data-g="uso" data-v="foto" onclick="selectSingle('uso',this)"><span class="opt-icon">📸</span> Fotografía / video</button>
+        <button class="option-btn" data-g="uso" data-v="racing" onclick="selectSingle('uso',this)"><span class="opt-icon">🏁</span> Racing / FPV</button>
+        <button class="option-btn" data-g="uso" data-v="recreativo" onclick="selectSingle('uso',this)"><span class="opt-icon">🎉</span> Recreativo</button>
+        <button class="option-btn" data-g="uso" data-v="profesional" onclick="selectSingle('uso',this)"><span class="opt-icon">💼</span> Profesional</button>
+        <button class="option-btn" data-g="uso" data-v="educacion" onclick="selectSingle('uso',this)"><span class="opt-icon">🎓</span> Educación</button>
+        <button class="option-btn" data-g="uso" data-v="otro" onclick="selectSingle('uso',this)"><span class="opt-icon">🔧</span> Otro</button>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(2)">← Atrás</button>
+      <button class="btn-next" id="btn-s3" onclick="goTo(4)" disabled>Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECCIÓN 4 — Canal de descubrimiento -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="section-label">📡 Cómo llegaste aquí</div>
+    <div class="section-title">¿Cómo conociste Cielito Drone?</div>
+    <div class="section-desc">Puedes elegir más de una opción.</div>
+
+    <div class="multi-hint">✦ Selección múltiple permitida</div>
+
+    <div class="options-grid" id="canal-opts">
+      <button class="option-btn multi" data-v="ig" onclick="toggleMulti('canal',this)"><span class="opt-icon">📷</span> Instagram</button>
+      <button class="option-btn multi" data-v="tiktok" onclick="toggleMulti('canal',this)"><span class="opt-icon">🎵</span> TikTok</button>
+      <button class="option-btn multi" data-v="fb" onclick="toggleMulti('canal',this)"><span class="opt-icon">👥</span> Facebook</button>
+      <button class="option-btn multi" data-v="yt" onclick="toggleMulti('canal',this)"><span class="opt-icon">▶️</span> YouTube</button>
+      <button class="option-btn multi" data-v="google" onclick="toggleMulti('canal',this)"><span class="opt-icon">🔍</span> Google / buscador</button>
+      <button class="option-btn multi" data-v="recomendacion" onclick="toggleMulti('canal',this)"><span class="opt-icon">🗣️</span> Me lo recomendaron</button>
+      <button class="option-btn multi" data-v="tienda" onclick="toggleMulti('canal',this)"><span class="opt-icon">🏪</span> Tienda física</button>
+      <button class="option-btn multi" data-v="evento" onclick="toggleMulti('canal',this)"><span class="opt-icon">🎪</span> Evento / expo</button>
+      <button class="option-btn multi" data-v="influencer" onclick="toggleMulti('canal',this)"><span class="opt-icon">⭐</span> Influencer / creador</button>
+      <button class="option-btn multi" data-v="email" onclick="toggleMulti('canal',this)"><span class="opt-icon">📧</span> Email / newsletter</button>
+      <button class="option-btn multi" data-v="mercadolibre" onclick="toggleMulti('canal',this)"><span class="opt-icon">🛍️</span> MercadoLibre</button>
+      <button class="option-btn multi" data-v="otro" onclick="toggleMulti('canal',this)"><span class="opt-icon">🌐</span> Otro canal</button>
+    </div>
+
+    <div class="card" style="margin-top:16px; display:none" id="canal-otro-card">
+      <div class="card-label">¿Cuál otro canal? Cuéntanos 👇</div>
+      <input type="text" id="canal-otro-txt" placeholder="p. ej. podcast, foro, grupo de WhatsApp...">
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(3)">← Atrás</button>
+      <button class="btn-next" id="btn-s4" onclick="goTo(5)" disabled>Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECCIÓN 5 — Comentario final + datos opcionales -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="section-label">💬 Para terminar</div>
+    <div class="section-title">¿Algo más que quieras decirnos?</div>
+    <div class="section-desc">¿Una sugerencia, algo que te encantó o que mejorarías? Todo feedback es bienvenido.</div>
+
+    <div class="card">
+      <textarea id="final-comment" rows="4" placeholder="Escribe aquí tu comentario libre... (opcional)"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-label">¿Comprarías de nuevo en Cielito Drone?</div>
+      <div class="options-grid" id="repurchase-opts" style="grid-template-columns:1fr 1fr 1fr">
+        <button class="option-btn" data-g="repurchase" data-v="si" onclick="selectSingle('repurchase',this)"><span class="opt-icon">✅</span> Sí, seguro</button>
+        <button class="option-btn" data-g="repurchase" data-v="tal-vez" onclick="selectSingle('repurchase',this)"><span class="opt-icon">🤔</span> Tal vez</button>
+        <button class="option-btn" data-g="repurchase" data-v="no" onclick="selectSingle('repurchase',this)"><span class="opt-icon">❌</span> No creo</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="card-label" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+      Datos opcionales — nos ayudan a personalizar tu atención futura
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Tu nombre (opcional)</label>
+      <input type="text" id="inp-name" placeholder="¿Cómo te llamas?">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Correo electrónico (opcional — solo si quieres que te contactemos)</label>
+      <input type="text" id="inp-email" placeholder="tucorreo@ejemplo.com">
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(4)">← Atrás</button>
+      <button class="btn-next" onclick="submit()">Enviar respuestas 🚀</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- THANK YOU -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="thankyou" id="thankyou">
+    <span class="ty-drone">🚁</span>
+    <div class="ty-title">¡Gracias por volar con nosotros!</div>
+    <p class="ty-msg">Tu feedback aterriza directamente con nuestro equipo. Cada respuesta nos ayuda a mejorar y a darte un mejor servicio la próxima vez.</p>
+    <div style="padding:20px; background:var(--accent-soft); border:1px solid var(--accent-border); border-radius:var(--radius); display:inline-block; margin-bottom:24px;">
+      <div style="font-size:13px; color:var(--accent); font-weight:600; margin-bottom:4px;">🎁 Regalo para ti</div>
+      <div style="font-size:14px; color:var(--text);">Usa el código <strong>CIELITO10</strong> en tu próxima compra y obtén 10% de descuento.</div>
+    </div>
+    <div style="font-size:13px; color:var(--text-muted);">— El equipo de Cielito Drone 🛸</div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+  // ── State ──
+  const data = {
+    nps: null,
+    nps_reason: '',
+    stars: {},
+    face_overall: null,
+    single: {},
+    multi: {},
+    comment: '',
+    repurchase: null,
+    name: '',
+    email: ''
+  };
+
+  let current = 1;
+  const totals = 5;
+
+  // ── Progress ──
+  function updateProgress(step) {
+    const pct = Math.round(((step - 1) / totals) * 100);
+    document.getElementById('prog').style.width = pct + '%';
+    document.getElementById('step-label').textContent = `Paso ${step} de ${totals}`;
+    document.getElementById('step-pct').textContent = pct + '%';
+  }
+
+  // ── Navigate ──
+  function goTo(n) {
+    document.getElementById('s' + current).classList.remove('active');
+    current = n;
+    document.getElementById('s' + current).classList.add('active');
+    updateProgress(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── NPS ──
+  function selectNPS(v) {
+    data.nps = v;
+    document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector(`.nps-btn[data-v="${v}"]`).classList.add('selected');
+    document.getElementById('nps-reason-card').style.display = 'block';
+    document.getElementById('btn-s1').disabled = false;
+  }
+
+  // ── Stars ──
+  const starState = {};
+
+  function setStar(group, val) {
+    starState[group] = val;
+    const container = document.querySelector(`.stars[data-group="${group}"]`);
+    container.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.toggle('lit', i < val);
+    });
+    checkS2();
+  }
+
+  function checkS2() {
+    const groups = ['s2_find','s2_info','s2_pay','s2_ship','s2_pack'];
+    const done = groups.every(g => starState[g] !== undefined);
+    document.getElementById('btn-s2').disabled = !done;
+  }
+
+  // ── Faces ──
+  function setFace(group, v) {
+    data['face_' + group] = v;
+    document.querySelectorAll(`#faces-${group} .face-btn`).forEach(b => {
+      b.classList.toggle('selected', parseInt(b.dataset.v) === v);
+    });
+    checkS3();
+  }
+
+  // ── Single select ──
+  function selectSingle(group, el) {
+    data.single[group] = el.dataset.v;
+    document.querySelectorAll(`[data-g="${group}"]`).forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    if (group === 'repurchase') return;
+    checkS3();
+  }
+
+  function checkS3() {
+    const ok = data.face_overall && data.single['match'] && data.single['uso'];
+    document.getElementById('btn-s3').disabled = !ok;
+  }
+
+  // ── Multi select ──
+  function toggleMulti(group, el) {
+    if (!data.multi[group]) data.multi[group] = new Set();
+    const v = el.dataset.v;
+    if (data.multi[group].has(v)) {
+      data.multi[group].delete(v);
+      el.classList.remove('selected');
+    } else {
+      data.multi[group].add(v);
+      el.classList.add('selected');
+    }
+    // Show "otro" field
+    if (group === 'canal') {
+      document.getElementById('canal-otro-card').style.display =
+        data.multi['canal'].has('otro') ? 'block' : 'none';
+    }
+    document.getElementById('btn-s4').disabled = data.multi[group].size === 0;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 🔧 CONFIGURACIÓN — pega aquí tu URL de Apps Script
+  //    Instrucciones en el archivo: apps-script-cielito.gs
+  // ══════════════════════════════════════════════════════
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxagNGkaA9GWOPqizgoDmDVbGjU5TfKYi2sCQzBR-MbIFLAvj8rUFgo7PJALyA-9VJnQg/exec';
+
+  // ── Submit ──
+  async function submit() {
+    data.comment    = document.getElementById('final-comment').value;
+    data.name       = document.getElementById('inp-name').value;
+    data.email      = document.getElementById('inp-email').value;
+    data.nps_reason = document.getElementById('nps-reason').value;
+    data.canal_otro = document.getElementById('canal-otro-txt').value;
+
+    const payload = {
+      timestamp:       new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }),
+      nps:             data.nps,
+      nps_razon:       data.nps_reason,
+      estrella_buscar: starState['s2_find']  || '',
+      estrella_info:   starState['s2_info']  || '',
+      estrella_pago:   starState['s2_pay']   || '',
+      estrella_envio:  starState['s2_ship']  || '',
+      estrella_empaque:starState['s2_pack']  || '',
+      satisfaccion_drone: data.face_overall  || '',
+      cumplio_descripcion: data.single['match']     || '',
+      uso_principal:   data.single['uso']           || '',
+      canales:         data.multi['canal'] ? [...data.multi['canal']].join(', ') : '',
+      canal_otro:      data.canal_otro,
+      comentario:      data.comment,
+      recompra:        data.single['repurchase']    || '',
+      nombre:          data.name,
+      email:           data.email,
+    };
+
+    // Mostrar pantalla de gracias inmediatamente (UX no bloqueante)
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelector('.progress-bar').style.display = 'none';
+    document.querySelector('.header').style.display = 'none';
+    document.getElementById('thankyou').classList.add('active');
+
+    // Enviar a Google Sheets en segundo plano
+    if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxagNGkaA9GWOPqizgoDmDVbGjU5TfKYi2sCQzBR-MbIFLAvj8rUFgo7PJALyA-9VJnQg/exec') {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.error('Error al enviar respuesta:', err);
+      }
+    } else {
+      console.warn('⚠️ Apps Script URL no configurada. Datos:', JSON.stringify(payload, null, 2));
+    }
+  }
+
+  // ── Init ──
+  updateProgress(1);
+
+  // ── iFrame auto-resize para Wix ──────────────────────────────────────────
+  function sendHeight() {
+    const h = document.body.scrollHeight;
+    window.parent.postMessage({ type: 'iframeHeight', height: h }, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  const ro = new ResizeObserver(sendHeight);
+  ro.observe(document.body);
+</script>
+</body>
+</html>
